@@ -1,4 +1,5 @@
 import 'package:dusty_dust/model/stat_model.dart';
+import 'package:dusty_dust/utils/data_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../const/colors.dart';
@@ -7,10 +8,12 @@ import '../model/status_model.dart';
 class MainAppBar extends StatelessWidget {
   final StatusModel status;
   final StatModel stat;
+  final String region;
 
   const MainAppBar({
     required this.status,
     required this.stat,
+    required this.region,
     Key? key,
   }) : super(key: key);
 
@@ -34,14 +37,14 @@ class MainAppBar extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  '서울',
+                  region,
                   style: ts.copyWith(
                     fontSize: 40.0,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
-                  getTimeFromDateTime(dateTime: stat.dataTime),
+                  DataUtils.getTimeFromDateTime(dateTime: stat.dataTime),
                   style: ts.copyWith(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w700,
@@ -76,11 +79,5 @@ class MainAppBar extends StatelessWidget {
     );
   }
 
-  String getTimeFromDateTime ({required DateTime dateTime}) {
-    return '${dateTime.year}-${dateTime.month}-${dateTime.day} ${getTimeFormat(dateTime.hour)}:${getTimeFormat(dateTime.minute)}';
-  }
 
-  String getTimeFormat (int number) {
-    return number.toString().padLeft(2, '0');
-  }
 }

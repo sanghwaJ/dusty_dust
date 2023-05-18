@@ -4,7 +4,9 @@ import '../const/data.dart';
 import '../model/stat_model.dart';
 
 class StatRepository {
-  static Future<List<StatModel>> fetchData() async {
+  static Future<List<StatModel>> fetchData({
+    required ItemCode itemCode,
+  }) async {
     // get 요청
     final response = await Dio().get(
       'http://apis.data.go.kr/B552584/ArpltnStatsSvc/getCtprvnMesureLIst',
@@ -13,7 +15,7 @@ class StatRepository {
         'returnType': 'json',
         'numOfRows': 30,
         'pageNo': 1,
-        'itemCode': 'PM10',
+        'itemCode': itemCode.name,
         'dataGubun': 'HOUR',
         'searchCondition': 'WEEK',
       },

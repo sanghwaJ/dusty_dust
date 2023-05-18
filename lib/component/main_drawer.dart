@@ -1,26 +1,19 @@
 import 'package:dusty_dust/const/colors.dart';
 import 'package:flutter/material.dart';
 
-const regions = [
-  '서울',
-  '경기',
-  '인천',
-  '충남',
-  '충북',
-  '전남',
-  '전북',
-  '경남',
-  '경북',
-  '강원',
-  '대전',
-  '대구',
-  '울산',
-  '부산',
-  '제주',
-];
+import '../const/regions.dart';
+
+typedef OnRegionTap = void Function(String region);
 
 class MainDrawer extends StatelessWidget {
-  const MainDrawer({Key? key}) : super(key: key);
+  final OnRegionTap onRegionTap;
+  final String selectedRegion;
+
+  const MainDrawer({
+    required this.onRegionTap,
+    required this.selectedRegion,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +31,27 @@ class MainDrawer extends StatelessWidget {
             ),
           ),
           // Cascade Operator => 리스트 연결
-          ...regions.map(
-            (e) => ListTile(
-              tileColor: Colors.white,
-              selectedTileColor: lightColor, // 선택이 된 상태에서 배경색
-              selectedColor: Colors.black, // 선택이 된 상태에서 글자색
-              selected: e == '서울', // 선택된 상태 조절
-              onTap: () {}, // ListTile + onTap => 클릭 애니메이션
-              title: Text(
-                e,
-              ),
-            ),
-          ).toList(),
+          ...regions
+              .map(
+                (e) => ListTile(
+                  tileColor: Colors.white,
+                  // 선택이 된 상태에서 배경색
+                  selectedTileColor: lightColor,
+                  // 선택이 된 상태에서 글자색
+                  selectedColor: Colors.black,
+                  // 선택된 상태 조절
+                  selected: e == selectedRegion,
+                  // ListTile + onTap => 클릭 애니메이션
+                  onTap: () {
+                    // onTap을 했을 떄, 어떤 region을 받는지 알 수 있음
+                    onRegionTap(e);
+                  },
+                  title: Text(
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
         ],
       ),
     );

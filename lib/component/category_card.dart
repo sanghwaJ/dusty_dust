@@ -1,12 +1,21 @@
 import 'package:dusty_dust/component/main_card.dart';
+import 'package:dusty_dust/utils/data_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../const/colors.dart';
+import '../model/stat_and_status_model.dart';
 import 'card_title.dart';
 import 'main_stat.dart';
 
 class CategoryCard extends StatelessWidget {
-  const CategoryCard({Key? key}) : super(key: key);
+  final String region;
+  final List<StatAndStatusModel> models;
+
+  const CategoryCard({
+    required this.region,
+    required this.models,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +38,23 @@ class CategoryCard extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   // PageScrollPhysics => 살짝만 스크롤해도 다음 위젯으로 이동됨
                   physics: PageScrollPhysics(),
-                  children: List.generate(
-                    20,
-                    (index) => MainStat(
-                      category: '미세먼지$index',
-                      imgPath: 'asset/img/best.png',
-                      level: '최고',
-                      stat: '0㎍/㎥ ',
-                      width: constraint.maxWidth / 3,
-                    ),
-                  ),
+                  children: models
+                      .map(
+                        (model) => MainStat(
+                          category: DataUtils.getItemCodeKrString(
+                            itemCode: model.itemCode,
+                          ),
+                          imgPath: model.status.imagePath,
+                          level: model.status.label,
+                          stat: '${model.stat.getLevelFromRegion(
+                            region,
+                          )}${DataUtils.getUnitFromItemCode(
+                            itemCode: model.itemCode,
+                          )}',
+                          width: constraint.maxWidth / 3,
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
             ],
