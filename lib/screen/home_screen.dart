@@ -14,7 +14,6 @@ import 'package:dusty_dust/utils/data_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../component/category_card.dart';
-import '../const/data.dart';
 import '../const/regions.dart';
 
 class HomeScreen extends StatefulWidget {
