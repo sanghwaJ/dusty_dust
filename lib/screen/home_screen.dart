@@ -33,6 +33,24 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
 
   String region = regions[0];
+  bool isExpanded = true;
+  ScrollController scrollController = ScrollController();
+
+  // initState => 모든 listener들을 등록
+  @override
+  initState() {
+    super.initState();
+    scrollController
+        .addListener(scrollListener); // 스크롤을 움직일 때마다 scrollListener 실행
+  }
+
+  @override
+  dispose() {
+    // 메모리 관리를 위해 controller는 dispose시 같이 dispose를 해줘야 함
+    scrollController.removeListener(scrollListener);
+    scrollController.dispose();
+    super.dispose();
+  }
 
   // API 요청
   Future<Map<ItemCode, List<StatModel>>> fetchData() async {
@@ -70,65 +88,90 @@ class _HomeScreenState extends State<HomeScreen> {
     return stats;
   }
 
+  scrollListener() {
+    // offset => scroll한 정도를 알 수 있음
+    bool isExpanded = scrollController.offset <
+        500 - kToolbarHeight; // main_app_bar - AppBar의 높이
+
+    if (isExpanded != this.isExpanded) {
+      setState(() {
+        this.isExpanded = isExpanded;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: primaryColor,
-      drawer: MainDrawer(
-        selectedRegion: region,
-        onRegionTap: (String region) {
-          setState(() {
-            this.region = region;
-          });
-          // region을 선택하면, 화면 닫힘 (뒤로가기)
-          Navigator.of(context).pop();
-        },
-      ),
-      body: FutureBuilder<Map<ItemCode, List<StatModel>>>(
-          future: fetchData(),
-          builder: (context, snapshot) {
-            // 에러 발생
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('에러가 있습니다.'),
-              );
-            }
+    return FutureBuilder<Map<ItemCode, List<StatModel>>>(
+      future: fetchData(),
+      builder: (context, snapshot) {
+        // 에러 발생
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('에러가 있습니다.'),
+            ),
+          );
+        }
 
-            // 데이터가 없을 때, 로딩바
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+        // 데이터가 없을 때, 로딩바
+        if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
 
-            Map<ItemCode, List<StatModel>> stats = snapshot.data!;
-            StatModel pm10RecentStat = stats[ItemCode.PM10]![0];
+        Map<ItemCode, List<StatModel>> stats = snapshot.data!;
+        StatModel pm10RecentStat = stats[ItemCode.PM10]![0];
 
-            final status = DataUtils.getStatusFromItemCodeAndValue(
-              value: pm10RecentStat.seoul,
-              itemCode: ItemCode.PM10,
-            );
+        // 미세먼지 최근 데이터의 현재 상태
+        final status = DataUtils.getStatusFromItemCodeAndValue(
+          value: pm10RecentStat.seoul,
+          itemCode: ItemCode.PM10,
+        );
 
-            final ssModel = stats.keys.map((key) {
-              final value = stats[key]!;
-              final stat = value[0];
+        final ssModel = stats.keys.map((key) {
+          // Android Studio는 Map의 key를 통해 value를 가져오는 경우 null 인 가능성을 항상 체크하기 때문에 !를 붙여줘야 함
+          final value = stats[key]!;
+          final stat = value[0];
 
-              return StatAndStatusModel(
-                itemCode: key,
-                status: DataUtils.getStatusFromItemCodeAndValue(
-                  value: stat.getLevelFromRegion(region), // 지역
-                  itemCode: key,
-                ),
-                stat: stat,
-              );
-            }).toList();
+          return StatAndStatusModel(
+            itemCode: key,
+            status: DataUtils.getStatusFromItemCodeAndValue(
+              value: stat.getLevelFromRegion(region), // 지역 한글
+              itemCode: key,
+            ),
+            stat: stat,
+          );
+        }).toList();
 
-            return CustomScrollView(
+        return Scaffold(
+          drawer: MainDrawer(
+            darkColor: status.darkColor,
+            lightColor: status.lightColor,
+            selectedRegion: region,
+            onRegionTap: (String region) {
+              setState(() {
+                this.region = region;
+              });
+              // region을 선택하면, 화면 닫힘 (뒤로가기)
+              Navigator.of(context).pop();
+            },
+          ),
+          body: Container(
+            // Scaffold에 배경을 주지 않고, status를 받아 아래에 배경을 주도록 함
+            color: status.primaryColor,
+            child: CustomScrollView(
+              controller: scrollController, // CustomScrollView controller 목적
               slivers: [
                 MainAppBar(
                   status: status,
                   stat: pm10RecentStat,
                   region: region,
+                  dateTime: pm10RecentStat.dataTime,
+                  isExpanded: isExpanded,
                 ),
                 // SliverToBoxAdapter => slivers안에 일반 위젯을 넣을 수 있음
                 SliverToBoxAdapter(
@@ -138,15 +181,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       CategoryCard(
                         region: region,
                         models: ssModel,
+                        darkColor: status.darkColor,
+                        lightColor: status.lightColor,
                       ),
                       const SizedBox(height: 16.0),
-                      HourlyCard(),
+                      // Cascade Operator => 리스트 연결
+                      ...stats.keys.map(
+                        (itemCode) {
+                          // Android Studio는 Map의 key를 통해 value를 가져오는 경우 null 인 가능성을 항상 체크하기 때문에 !를 붙여줘야 함
+                          final stat = stats[itemCode]!;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: HourlyCard(
+                              darkColor: status.darkColor,
+                              lightColor: status.lightColor,
+                              category: DataUtils.getItemCodeKrString(
+                                itemCode: itemCode,
+                              ),
+                              stats: stat,
+                              region: region,
+                            ),
+                          );
+                        },
+                      ).toList(),
+                      const SizedBox(height: 16.0),
                     ],
                   ),
                 ),
               ],
-            );
-          }),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -10,10 +10,14 @@ import 'main_stat.dart';
 class CategoryCard extends StatelessWidget {
   final String region;
   final List<StatAndStatusModel> models;
+  final Color darkColor;
+  final Color lightColor;
 
   const CategoryCard({
     required this.region,
     required this.models,
+    required this.darkColor,
+    required this.lightColor,
     Key? key,
   }) : super(key: key);
 
@@ -23,6 +27,7 @@ class CategoryCard extends StatelessWidget {
     return SizedBox(
       height: 160,
       child: MainCard(
+        backgroundColor: lightColor,
         // LayoutBuilder => height와 width의 min, max 설정을 줄 수 있는 constraint를 사용할 수 있음
         child: LayoutBuilder(builder: (context, constraint) {
           return Column(
@@ -30,6 +35,7 @@ class CategoryCard extends StatelessWidget {
             children: [
               CardTitle(
                 title: '종류별 통계',
+                backgroundColor: darkColor,
               ),
               // Scroll이 가능한 위젯을 Column 안에서 사용할 때는 Expanded를 사용해야 함
               Expanded(
