@@ -1,38 +1,94 @@
+import 'package:hive_flutter/hive_flutter.dart';
+
+// Code Generation
+part 'stat_model.g.dart';
+
+@HiveType(typeId: 2)
 enum ItemCode {
   // 미세먼지
+  @HiveField(0)
   PM10,
   // 초미세먼지
+  @HiveField(1)
   PM25,
   // 이산화질소
+  @HiveField(2)
   NO2,
   // 오존
+  @HiveField(3)
   O3,
   // 일산화탄소
+  @HiveField(4)
   CO,
   // 이황산가스
+  @HiveField(5)
   SO2,
 }
 
+// class를 hive에 등록하기
+@HiveType(typeId: 1) // 고유의 int 값 지정
 class StatModel {
+  @HiveField(0) // 주의! 한 번 hive에 등록하면, 변경 시 삭제하고 새로운 HiveField id를 부여해야 함
   final double daegu;
+  @HiveField(1)
   final double chungnam;
+  @HiveField(2)
   final double incheon;
+  @HiveField(3)
   final double daejeon;
+  @HiveField(4)
   final double gyeongbuk;
+  @HiveField(5)
   final double sejong;
+  @HiveField(6)
   final double gwangju;
+  @HiveField(7)
   final double jeonbuk;
+  @HiveField(8)
   final double gangwon;
+  @HiveField(9)
   final double ulsan;
+  @HiveField(10)
   final double jeonnam;
+  @HiveField(11)
   final double seoul;
+  @HiveField(12)
   final double busan;
+  @HiveField(13)
   final double jeju;
+  @HiveField(14)
   final double chungbuk;
+  @HiveField(15)
   final double gyeongnam;
+  @HiveField(16)
   final double gyeonggi;
+  @HiveField(17)
   final DateTime dataTime;
+  @HiveField(18)
   final ItemCode itemCode;
+
+  // StatModel을 hive에 저장하기 위한 기본 생성자
+  StatModel({
+    required this.daegu,
+    required this.chungnam,
+    required this.incheon,
+    required this.daejeon,
+    required this.gyeongbuk,
+    required this.sejong,
+    required this.gwangju,
+    required this.jeonbuk,
+    required this.gangwon,
+    required this.ulsan,
+    required this.jeonnam,
+    required this.seoul,
+    required this.busan,
+    required this.jeju,
+    required this.chungbuk,
+    required this.gyeongnam,
+    required this.gyeonggi,
+    required this.dataTime,
+    required this.itemCode,
+  });
 
   // constructor => 인스턴스화 할 때, json으로부터 StatModel 형태로 만들어 줌
   StatModel.fromJson({required Map<String, dynamic> json})
