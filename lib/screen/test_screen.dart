@@ -1,3 +1,4 @@
+import 'package:dusty_dust/screen/test2_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dusty_dust/main.dart';
@@ -20,9 +21,10 @@ class _TestScreenState extends State<TestScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // <Box> => generic을 추가해줘야 자동완성이 잘 됨
           ValueListenableBuilder<Box>(
-            // generic을 추가해줘야 자동완성이 잘 됨
-            // Hive.box(testBox)의 값이 변경될 때마다 listening, 아래의 builder 함수 실행 (stream과 비슷) => 상태 관리에 장점이 있음
+            // Hive.box(testBox)의 값이 변경될 때마다 listening, 아래의 builder 함수 실행 (stream과 비슷)
+            // ValueListenableBuilder 장점 => 상태 관리에 장점이 있음, 화면을 다루는 코드와 데이터를 다루는 코드를 구분할 수 있음
             valueListenable: Hive.box(testBox).listenable(),
             builder: (context, box, widget) {
               return Column(
@@ -81,6 +83,18 @@ class _TestScreenState extends State<TestScreen> {
             },
             child: Text(
               '삭제하기',
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => Test2Screen(),
+                ),
+              );
+            },
+            child: Text(
+              '다음화면',
             ),
           ),
         ],
