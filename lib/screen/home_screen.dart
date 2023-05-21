@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        // 아래의 코드가 StatModel을 나타냄을 정의
+        // casting을 통해 recentStat이 StatModel을 나타냄을 정의
         final recentStat = box.values.toList().last
             as StatModel; // PM10(미세먼지 값)의 가장 최근 데이터를 가져옴
 

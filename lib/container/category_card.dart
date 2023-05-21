@@ -28,7 +28,7 @@ class CategoryCard extends StatelessWidget {
       height: 160,
       child: MainCard(
         backgroundColor: lightColor,
-        // LayoutBuilder => height와 width의 min, max 설정을 줄 수 있는 constraint를 사용할 수 있음
+        // LayoutBuilder => height와 width에 min, max 설정을 줄 수 있는 constraint를 사용할 수 있음
         child: LayoutBuilder(builder: (context, constraint) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
